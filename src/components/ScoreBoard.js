@@ -1,13 +1,16 @@
 import React from 'react';
 
-function ScoreBoard({ scores, playerNames }) {
+function ScoreBoard({ scores = [], playerNames = [] }) {
   return (
     <div className="scoreboard">
-      {playerNames.map((name, index) => (
-        <div key={index}>
-          <p>{name}: {scores[index]}</p>
-        </div>
-      ))}
+      <h3>Scores</h3>
+      <ul>
+        {playerNames.map((name, index) => (
+          <li key={index}>
+            {name}: {scores[index] || 0} points
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

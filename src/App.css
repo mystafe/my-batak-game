@@ -119,3 +119,104 @@
   font-size: 16px;
   color: black;
 }
+
+.bidding-container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.bidding-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.bidding-card {
+  width: 60px; /* Adjust the width of the cards */
+  margin-right: 10px; /* Space between the cards */
+}
+
+.bidding-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.bid-button {
+  background-color: #4CAF50; /* Green background */
+  color: white;
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bid-button:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+/* General Container for Card Alignment */
+.player-hand, .bidding-cards, .trick-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* Card Styling */
+.bidding-card {
+  width: 60px; /* Adjust the width of the cards */
+  margin-right: 10px; /* Space between the cards */
+}
+Button {
+  background-color: #845cd5; /* Green background */
+  color: white;
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Button Styling */
+.bid-button, .game-button {
+  background-color: #4CAF50; /* Green background */
+  color: white;
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bid-button:hover, .game-button:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+.bid-button {
+  background-color: #4CAF50; /* Green background for active buttons */
+  color: white;
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bid-button:hover:not(:disabled) {
+  background-color: #45a049; /* Darker green on hover for active buttons */
+}
+
+/* Styles for disabled buttons */
+.disabled-button {
+  background-color: #d3d3d3; /* Gray background for disabled buttons */
+  color: #808080; /* Darker gray text color for disabled buttons */
+  cursor: not-allowed; /* Change cursor to indicate the button is not clickable */
+}
