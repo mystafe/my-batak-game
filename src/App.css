@@ -1,38 +1,93 @@
+/* General App styles */
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  background-image: url('/src/assets/BatakBackground.jpg'); /* Background image */
+  background-size: cover; /* Ensure the image covers the entire area */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Prevent repeating */
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* Centering the title at the bottom */
+.game-title {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  z-index: 10;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Game Board styling */
+.game-board {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+/* Scoreboard styling with transparency */
+.scoreboard {
+  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Bidding section styling with transparency */
+.bidding-section {
+  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Start Game button styling with transparency */
+.start-game {
+  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
+  padding: 10px 20px;
+  border-radius: 10px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+.start-game:hover {
+  background-color: rgba(0, 0, 0, 0.7); /* Darken on hover */
+}
+
+/* Notification section styling */
+.notification {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Player hand styling */
+.player-hand {
+  margin-top: 20px;
 }

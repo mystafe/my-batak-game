@@ -1,23 +1,12 @@
-import logo from './logo.svg';
+import React from 'react';
+import GameBoard from './components/GameBoard';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <GameBoard />
+      <h1 className="game-title">Batak: The Card Game - Developed by Mustafa Evleksiz</h1>
     </div>
   );
 }
