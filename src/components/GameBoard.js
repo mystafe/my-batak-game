@@ -5,7 +5,7 @@ import Trick from './Trick';
 import ScoreBoard from './ScoreBoard';
 import Notification from './Notification';
 import PlayerHand from './PlayerHand';
-import { shuffleDeck, values, determineTrickWinner, getCardImage } from '../utils/gameLogic';
+import { shuffleDeck, determineTrickWinner } from '../utils/gameLogic';
 import { startGame, handleBid } from '../utils/gameActions';
 
 function GameBoard() {
@@ -52,7 +52,6 @@ function GameBoard() {
       currentPhase: 'playing',
       currentPlayer: prevState.declarer,
       notification: `${prevState.playerNames[prevState.declarer]} selected ${suit} as the trump suit. Let the game begin!`,
-      players: prevState.players.length === 4 ? prevState.players : [[], [], [], []],
     }));
 
     setTimeout(() => {
@@ -66,23 +65,23 @@ function GameBoard() {
   const handlePlayCard = (card) => {
     console.log(`Player ${gameState.currentPlayer + 1} played:`, card);
 
-    const { currentPlayer, currentTrick, players, trickLog, playerNames, trumpSuit } = gameState;
+    const { currentPlayer, currentTrick, players, trickLog, playerNames, trumpSuit, roundCount } = gameState;
     const currentSuit = currentTrick.length > 0 ? currentTrick[0].card.suit : card.suit;
     const playerHand = players[currentPlayer];
 
-    // Check if the player has a card of the current suit
     const sameSuitCards = playerHand.filter(c => c.suit === currentSuit);
-    const trumpCards = playerHand.filter(c => c.suit === trumpSuit);
+    const hasTrumpSuit = playerHand.some(c => c.suit === trumpSuit);
 
     if (sameSuitCards.length > 0 && card.suit !== currentSuit) {
       alert(`${playerNames[currentPlayer]}, you must follow suit and play a ${currentSuit} card!`);
-      return; // Prevent the card from being played
-    } else if (sameSuitCards.length === 0 && trumpCards.length > 0 && card.suit !== trumpSuit) {
-      alert(`${playerNames[currentPlayer]}, you must play a trump card if you don't have a ${currentSuit} card!`);
-      return; // Prevent the card from being played
+      return;
     }
 
-    // Proceed with playing the card
+    if (sameSuitCards.length === 0 && card.suit !== trumpSuit && hasTrumpSuit) {
+      alert(`${playerNames[currentPlayer]}, you must play a trump (${trumpSuit}) if possible!`);
+      return;
+    }
+
     const newTrick = [...currentTrick, { player: currentPlayer, card }];
     const newPlayers = players.map((hand, index) =>
       index === currentPlayer ? hand.filter(c => c !== card) : hand
@@ -92,6 +91,11 @@ function GameBoard() {
 
     if (newTrick.length === 4) {
       const trickWinner = determineTrickWinner(newTrick, trumpSuit);
+
+      // Increment the number of tricks won by the winning player
+      const newTricksWon = [...gameState.tricksWon];
+      newTricksWon[trickWinner] += 1;
+
       setGameState({
         ...gameState,
         currentTrick: [],
@@ -99,7 +103,17 @@ function GameBoard() {
         currentPlayer: trickWinner,
         notification: `${playerNames[trickWinner]} wins the trick!`,
         trickLog: newTrickLog,
+        tricksWon: newTricksWon, // Update tricks won
       });
+
+      if (roundCount >= 12) {
+        handleEndRound(gameState, setGameState); // End the game after 13 rounds
+      } else {
+        setGameState((prevState) => ({
+          ...prevState,
+          roundCount: prevState.roundCount + 1, // Move to the next round
+        }));
+      }
     } else {
       setGameState({
         ...gameState,
@@ -113,18 +127,26 @@ function GameBoard() {
   };
 
   const handleEndRound = () => {
-    const { declarer, bids, tricksWon, scores, roundCount } = gameState;
+    const { declarer, bids, tricksWon, scores } = gameState;
     const newScores = [...scores];
 
+    // Calculate points for the declarer
     if (tricksWon[declarer] < bids[declarer]) {
+      // Declarer did not meet their bid, lose points
       newScores[declarer] -= bids[declarer] * 10;
+    } else {
+      // Declarer met or exceeded their bid, gain points
+      newScores[declarer] += bids[declarer] * 10;
     }
 
+    // Calculate points for other players based on the number of tricks won
     for (let i = 0; i < 4; i++) {
-      newScores[i] += tricksWon[i] * 10;
+      if (i !== declarer) {
+        newScores[i] += tricksWon[i] * 10;
+      }
     }
 
-    const newRoundCount = roundCount + 1;
+    const newRoundCount = gameState.roundCount + 1;
 
     if (newRoundCount >= 13) {
       // End the game after 13 rounds
@@ -144,6 +166,8 @@ function GameBoard() {
         currentPhase: 'bidding',
         notification: `Round ${newRoundCount} complete. Next round begins.`,
         trickLog: [], // Clear the trick log
+        tricksWon: [0, 0, 0, 0], // Reset tricks won for the new round
+        bids: [null, null, null, null], // Reset bids for the new round
       });
     }
   };
@@ -181,13 +205,8 @@ function GameBoard() {
           <Trick trick={gameState.currentTrick} playerNames={gameState.playerNames} />
           <PlayerHand
             cards={gameState.players[gameState.currentPlayer]}
-            playCard={handlePlayCard}
+            playCard={(card) => handlePlayCard(card, gameState, setGameState)}
           />
-          <div className="trick-log">
-            {gameState.trickLog.map((log, index) => (
-              <p key={index}>{log}</p>
-            ))}
-          </div>
         </div>
       )}
       {gameState.currentPhase === 'end' && (

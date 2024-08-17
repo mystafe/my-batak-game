@@ -14,7 +14,7 @@ export const startGame = (setGameState) => {
     currentPhase: 'bidding',
     notification: 'Cards dealt. Place your bids!',
     trumpSuit: null,
-    bidOrder: [],
+    bidOrder: shuffleDeck([0, 1, 2, 3]), // Ensure bid order is randomized
     roundCount: 0,
   }));
 };
@@ -66,30 +66,44 @@ export const handleEndRound = (gameState, setGameState) => {
   const { declarer, bids, tricksWon, scores, roundCount } = gameState;
   const newScores = [...scores];
 
+  // Calculate points for the declarer
   if (tricksWon[declarer] < bids[declarer]) {
+    // Declarer did not meet their bid, lose points
     newScores[declarer] -= bids[declarer] * 10;
+  } else {
+    // Declarer met or exceeded their bid, gain points
+    newScores[declarer] += bids[declarer] * 10;
   }
 
+  // Calculate points for other players based on the number of tricks won
   for (let i = 0; i < 4; i++) {
-    newScores[i] += tricksWon[i] * 10;
+    if (i !== declarer) {
+      newScores[i] += tricksWon[i] * 10;
+    }
   }
 
   const newRoundCount = roundCount + 1;
 
   if (newRoundCount >= 13) {
+    // End the game after 13 rounds
     setGameState((prevState) => ({
       ...prevState,
       scores: newScores,
       currentPhase: 'end',
       notification: `Game over. Final scores: ${newScores.join(', ')}`,
+      trickLog: [], // Clear the trick log
     }));
   } else {
+    // Continue to the next round
     setGameState((prevState) => ({
       ...prevState,
       scores: newScores,
       roundCount: newRoundCount,
       currentPhase: 'bidding',
       notification: `Round ${newRoundCount} complete. Next round begins.`,
+      trickLog: [], // Clear the trick log
+      tricksWon: [0, 0, 0, 0], // Reset tricks won for the new round
+      bids: [null, null, null, null], // Reset bids for the new round
     }));
   }
 };

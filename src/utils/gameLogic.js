@@ -41,6 +41,7 @@ export const sortHand = (hand) => {
 };
 
 export const determineTrickWinner = (trick, trumpSuit) => {
+  // const leadSuit = trick[0].card.suit;
   let highestCard = trick[0].card;
   let winningPlayer = trick[0].player;
 
@@ -59,9 +60,6 @@ export const determineTrickWinner = (trick, trumpSuit) => {
   return winningPlayer;
 };
 
-// Add this function to get the image path for a card
 export const getCardImage = (card) => {
-  const imageName = `${card.value}_of_${card.suit}.png`;
-  const path = `cards/${imageName}`;
-  return `${path}`;
+  return `cards/${card.value}_of_${card.suit}.png`;
 };
