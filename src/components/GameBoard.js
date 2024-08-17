@@ -135,7 +135,8 @@ function GameBoard() {
 
   const getCardImage = (card) => {
     const imageName = `${card.value}_of_${card.suit}.png`;
-    return `/src/assets/cards/${imageName}`;
+    const path = `cards/${imageName}`;
+    return `${path}`;
   };
 
   return (
