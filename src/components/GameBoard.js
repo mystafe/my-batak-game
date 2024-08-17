@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import PlayerHand from './PlayerHand';
+import PlayerSetup from './PlayerSetup';
 import Bidding from './Bidding';
 import Trick from './Trick';
 import ScoreBoard from './ScoreBoard';
-import { createDeck, shuffleDeck, dealCards, values } from '../utils/gameLogic';
+import Notification from './Notification';
+import PlayerHand from './PlayerHand';
+import { createDeck, shuffleDeck, dealCards, values, playCard, sortHand } from '../utils/gameLogic';
 
 function GameBoard() {
   const [gameState, setGameState] = useState({
@@ -16,7 +18,7 @@ function GameBoard() {
     currentPlayer: 0,
     declarer: null,
     currentPhase: 'setup', // Initial phase is "setup"
-    playerNames: ['', '', '', ''], // Store player names
+    playerNames: ['Mustafa', 'Player 2', 'Player 3', 'Player 4'], // Default player names
     notification: '', // Notification message to be displayed
   });
 
@@ -29,7 +31,11 @@ function GameBoard() {
   const startGame = () => {
     let deck = createDeck();
     deck = shuffleDeck(deck);
-    const players = dealCards(deck);
+    const players = dealCards(deck).map(hand => {
+      const sortedHand = sortHand(hand);
+      console.log('Sorted Hand:', sortedHand); // Debugging line
+      return sortedHand;
+    });
 
     setGameState({
       ...gameState,
@@ -58,129 +64,50 @@ function GameBoard() {
     });
   };
 
-  const playCard = (card) => {
-    const { currentPlayer, currentTrick, players, scores } = gameState;
-    const leadSuit = currentTrick.length > 0 ? currentTrick[0].card.suit : null;
-    const playerHand = players[currentPlayer];
-
-    // Check if the player has a card of the lead suit
-    const hasLeadSuit = playerHand.some(c => c.suit === leadSuit);
-    // Check if the player has a trump card (assuming "spades" are trump)
-    const hasTrump = playerHand.some(c => c.suit === 'spades');
-
-    // Validate the card to be played
-    if (leadSuit) {
-      if (card.suit !== leadSuit && hasLeadSuit) {
-        setGameState({
-          ...gameState,
-          notification: `You must play a ${leadSuit} card!`,
-        });
-        return;
-      } else if (card.suit !== 'spades' && !hasLeadSuit && hasTrump) {
-        setGameState({
-          ...gameState,
-          notification: `You must play a trump (spades) card!`,
-        });
-        return;
-      }
-    }
-
-    // Proceed with the play
-    const newTrick = [...currentTrick, { player: currentPlayer, card }];
-
-    const newPlayers = players.map((hand, index) =>
-      index === currentPlayer ? hand.filter(c => c !== card) : hand
-    );
-
-    if (newTrick.length === 4) {
-      // Determine winner of the trick
-      const trickWinner = determineTrickWinner(newTrick);
-
-      // Update the score of the trick winner
-      const newScores = [...scores];
-      newScores[trickWinner] += 1;
-
-      setGameState({
-        ...gameState,
-        currentTrick: [],
-        players: newPlayers,
-        currentPlayer: trickWinner, // Trick winner leads the next round
-        scores: newScores, // Update scores
-        notification: `${gameState.playerNames[trickWinner]} wins the trick!`, // Notify the winner
-      });
-    } else {
-      setGameState({
-        ...gameState,
-        currentTrick: newTrick,
-        players: newPlayers,
-        currentPlayer: (currentPlayer + 1) % 4, // Next player's turn
-      });
-    }
-  };
-
   const determineTrickWinner = (trick) => {
-    const leadSuit = trick[0].card.suit;
+    const leadSuit = trick[0].card.suit;  // The suit of the first card played
     const trumpSuit = 'spades'; // Assuming spades are trump
-    const validCards = trick.filter(({ card }) => card.suit === leadSuit || card.suit === trumpSuit);
+    let highestCard = trick[0].card;
+    let winningPlayer = trick[0].player;
 
-    const winningCard = validCards.reduce((highest, current) => {
-      const isHigher =
-        (current.card.suit === trumpSuit && highest.card.suit !== trumpSuit) ||
-        (current.card.suit === highest.card.suit && values.indexOf(current.card.value) < values.indexOf(highest.card.value));
-      return isHigher ? current : highest;
+    trick.forEach(({ card, player }) => {
+      if (card.suit === highestCard.suit) {
+        if (values.indexOf(card.value) > values.indexOf(highestCard.value)) {
+          highestCard = card;
+          winningPlayer = player;
+        }
+      } else if (card.suit === trumpSuit && highestCard.suit !== trumpSuit) {
+        highestCard = card;
+        winningPlayer = player;
+      }
     });
 
-    return winningCard.player;
-  };
-
-  const getCardImage = (card) => {
-    const imageName = `${card.value}_of_${card.suit}.png`;
-    const path = `cards/${imageName}`;
-    return `${path}`;
+    return winningPlayer;
   };
 
   return (
     <div className="game-board">
-      <div className="scoreboard">
-        <ScoreBoard scores={gameState.scores} />
-      </div>
-      <div className="notification">
-        <p>{gameState.notification}</p>
-      </div>
+      <ScoreBoard scores={gameState.scores} playerNames={gameState.playerNames} />
+      <Notification message={gameState.notification} />
       {gameState.currentPhase === 'setup' && (
-        <div className="player-setup">
-          {gameState.playerNames.map((name, index) => (
-            <div key={index}>
-              <label>Player {index + 1} Name:</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => handleNameChange(index, e.target.value)}
-              />
-            </div>
-          ))}
-          <button className="start-game" onClick={startGame}>Start Game</button>
-        </div>
+        <PlayerSetup
+          playerNames={gameState.playerNames}
+          handleNameChange={handleNameChange}
+          startGame={startGame}
+        />
       )}
       {gameState.currentPhase === 'bidding' && (
         <div className="bidding-section">
-          <Bidding onBidComplete={handleBidComplete} />
+          <Bidding onBidComplete={handleBidComplete} playerNames={gameState.playerNames} />
         </div>
       )}
       {gameState.currentPhase === 'playing' && (
         <div>
-          <Trick trick={gameState.currentTrick} />
-          <div className="player-hand">
-            {gameState.players[gameState.currentPlayer].map((card, index) => (
-              <img
-                key={index}
-                src={getCardImage(card)}
-                alt={`${card.value} of ${card.suit}`}
-                onClick={() => playCard(card)}
-                style={{ cursor: 'pointer', width: '100px', height: 'auto' }}
-              />
-            ))}
-          </div>
+          <Trick trick={gameState.currentTrick} playerNames={gameState.playerNames} />
+          <PlayerHand
+            cards={gameState.players[gameState.currentPlayer]}
+            playCard={(card) => playCard(card, gameState, setGameState, determineTrickWinner, values)}
+          />
         </div>
       )}
     </div>

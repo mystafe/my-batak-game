@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
 
-function Bidding({ onBidComplete }) {
+function Bidding({ onBidComplete, playerNames }) {
   const [bids, setBids] = useState([null, null, null, null]);
-  const [currentPlayer, setCurrentPlayer] = useState(0);
 
-  const handleBid = (bidValue) => {
+  const handleBid = (index, bid) => {
     const newBids = [...bids];
-    newBids[currentPlayer] = bidValue;
-
-    if (currentPlayer === 3) {
-      onBidComplete(newBids);
-    } else {
-      setCurrentPlayer(currentPlayer + 1);
-    }
-
+    newBids[index] = bid;
     setBids(newBids);
+
+    if (newBids.every(bid => bid !== null)) {
+      onBidComplete(newBids);
+    }
   };
 
   return (
-    <div className="bidding">
-      <p>Player {currentPlayer + 1}, place your bid:</p>
-      <button onClick={() => handleBid(1)}>1</button>
-      <button onClick={() => handleBid(2)}>2</button>
-      <button onClick={() => handleBid(3)}>3</button>
-      {/* Add more bid buttons as needed */}
+    <div>
+      {playerNames.map((name, index) => (
+        <div key={index}>
+          <span>{name}'s Bid:</span>
+          <select onChange={(e) => handleBid(index, parseInt(e.target.value, 10))}>
+            {[...Array(11).keys()].slice(1).map(value => (
+              <option key={value} value={value}>{value}</option>
+            ))}
+          </select>
+        </div>
+      ))}
     </div>
   );
 }
-
 export default Bidding;

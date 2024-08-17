@@ -1,12 +1,11 @@
 import React from 'react';
 
-function ScoreBoard({ scores }) {
+function ScoreBoard({ scores, playerNames }) {
   return (
     <div className="scoreboard">
-      <h2>Scores</h2>
-      {scores.map((score, index) => (
+      {playerNames.map((name, index) => (
         <div key={index}>
-          Player {index + 1}: {score} points
+          <p>{name}: {scores[index]}</p>
         </div>
       ))}
     </div>

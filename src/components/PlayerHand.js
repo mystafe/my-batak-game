@@ -1,11 +1,16 @@
 import React from 'react';
-import Card from './Card';
 
-function PlayerHand({ hand }) {
+function PlayerHand({ cards, playCard }) {
   return (
     <div className="player-hand">
-      {hand.map((card, index) => (
-        <Card key={index} card={card} />
+      {cards.map((card, index) => (
+        <img
+          key={index}
+          src={`cards/${card.value}_of_${card.suit}.png`}
+          alt={`${card.value} of ${card.suit}`}
+          onClick={() => playCard(card)}
+          style={{ cursor: 'pointer', width: '100px', height: 'auto' }}
+        />
       ))}
     </div>
   );
