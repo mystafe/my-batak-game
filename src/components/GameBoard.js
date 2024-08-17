@@ -53,6 +53,32 @@ function GameBoard() {
 
   const playCard = (card) => {
     const { currentPlayer, currentTrick, players, scores } = gameState;
+    const leadSuit = currentTrick.length > 0 ? currentTrick[0].card.suit : null;
+    const playerHand = players[currentPlayer];
+
+    // Check if the player has a card of the lead suit
+    const hasLeadSuit = playerHand.some(c => c.suit === leadSuit);
+    // Check if the player has a trump card (assuming "spades" are trump)
+    const hasTrump = playerHand.some(c => c.suit === 'spades');
+
+    // Validate the card to be played
+    if (leadSuit) {
+      if (card.suit !== leadSuit && hasLeadSuit) {
+        setGameState({
+          ...gameState,
+          notification: `You must play a ${leadSuit} card!`,
+        });
+        return;
+      } else if (card.suit !== 'spades' && !hasLeadSuit && hasTrump) {
+        setGameState({
+          ...gameState,
+          notification: `You must play a trump (spades) card!`,
+        });
+        return;
+      }
+    }
+
+    // Proceed with the play
     const newTrick = [...currentTrick, { player: currentPlayer, card }];
 
     const newPlayers = players.map((hand, index) =>
