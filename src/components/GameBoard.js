@@ -15,9 +15,16 @@ function GameBoard() {
     scores: [0, 0, 0, 0], // Scores for each player
     currentPlayer: 0,
     declarer: null,
-    currentPhase: 'start', // Initial phase is "start"
+    currentPhase: 'setup', // Initial phase is "setup"
+    playerNames: ['', '', '', ''], // Store player names
     notification: '', // Notification message to be displayed
   });
+
+  const handleNameChange = (index, name) => {
+    const newPlayerNames = [...gameState.playerNames];
+    newPlayerNames[index] = name;
+    setGameState({ ...gameState, playerNames: newPlayerNames });
+  };
 
   const startGame = () => {
     let deck = createDeck();
@@ -47,7 +54,7 @@ function GameBoard() {
       currentPhase: 'playing', // Move to the playing phase
       currentPlayer: declarer, // Set the current player to the declarer
       currentTrick: [],
-      notification: `Player ${declarer + 1} starts the game!`,
+      notification: `${gameState.playerNames[declarer]} starts the game!`,
     });
   };
 
@@ -99,7 +106,7 @@ function GameBoard() {
         players: newPlayers,
         currentPlayer: trickWinner, // Trick winner leads the next round
         scores: newScores, // Update scores
-        notification: `Player ${trickWinner + 1} wins the trick!`, // Notify the winner
+        notification: `${gameState.playerNames[trickWinner]} wins the trick!`, // Notify the winner
       });
     } else {
       setGameState({
@@ -126,6 +133,11 @@ function GameBoard() {
     return winningCard.player;
   };
 
+  const getCardImage = (card) => {
+    const imageName = `${card.value}_of_${card.suit}.png`;
+    return `/src/assets/cards/${imageName}`;
+  };
+
   return (
     <div className="game-board">
       <div className="scoreboard">
@@ -134,8 +146,20 @@ function GameBoard() {
       <div className="notification">
         <p>{gameState.notification}</p>
       </div>
-      {gameState.currentPhase === 'start' && (
-        <button className="start-game" onClick={startGame}>Start Game</button>
+      {gameState.currentPhase === 'setup' && (
+        <div className="player-setup">
+          {gameState.playerNames.map((name, index) => (
+            <div key={index}>
+              <label>Player {index + 1} Name:</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => handleNameChange(index, e.target.value)}
+              />
+            </div>
+          ))}
+          <button className="start-game" onClick={startGame}>Start Game</button>
+        </div>
       )}
       {gameState.currentPhase === 'bidding' && (
         <div className="bidding-section">
@@ -147,9 +171,13 @@ function GameBoard() {
           <Trick trick={gameState.currentTrick} />
           <div className="player-hand">
             {gameState.players[gameState.currentPlayer].map((card, index) => (
-              <button key={index} onClick={() => playCard(card)}>
-                {card.value} of {card.suit}
-              </button>
+              <img
+                key={index}
+                src={getCardImage(card)}
+                alt={`${card.value} of ${card.suit}`}
+                onClick={() => playCard(card)}
+                style={{ cursor: 'pointer', width: '100px', height: 'auto' }}
+              />
             ))}
           </div>
         </div>

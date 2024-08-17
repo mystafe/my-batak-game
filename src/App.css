@@ -91,3 +91,31 @@
 .player-hand {
   margin-top: 20px;
 }
+
+/* Player Setup section styling */
+.player-setup {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
+  border-radius: 10px;
+}
+
+.player-setup div {
+  margin-bottom: 10px;
+}
+
+.player-setup label {
+  margin-right: 10px;
+  color: white;
+}
+
+.player-setup input {
+  padding: 5px;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+  color: black;
+}
