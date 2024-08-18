@@ -9,10 +9,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('/src/assets/BatakBackground.jpg'); /* Background image */
-  background-size: cover; /* Ensure the image covers the entire area */
-  background-position: center; /* Center the image */
-  background-repeat: no-repeat; /* Prevent repeating */
+  background-image: url('/src/assets/BatakBackground.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: white;
 }
 
@@ -20,15 +20,12 @@
 .game-title {
   position: absolute;
   bottom: -20px;
-  top: auto;
   left: 50%;
   transform: translateX(-50%);
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.103);
-  /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); */
+  color: rgba(255, 255, 255, 0.1);
   z-index: 10;
 }
-
 
 /* Game Board styling */
 .game-board {
@@ -41,153 +38,27 @@
   color: white;
 }
 
-/* Scoreboard styling with transparency */
-.scoreboard {
-  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
+/* Scoreboard and Bidding section styling */
+.scoreboard, .bidding-section, .notification, .player-setup {
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 20px;
   border-radius: 10px;
   color: white;
   text-align: center;
   margin-bottom: 20px;
-}
-
-/* Bidding section styling with transparency */
-.bidding-section {
-  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
-  padding: 20px;
-  border-radius: 10px;
-  color: white;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-/* Start Game button styling with transparency */
-.start-game {
-  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
-  padding: 10px 20px;
-  border-radius: 10px;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  margin-top: 20px;
-}
-
-.start-game:hover {
-  background-color: rgba(0, 0, 0, 0.7); /* Darken on hover */
 }
 
 /* Notification section styling */
 .notification {
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
   padding: 10px;
   border-radius: 5px;
-  text-align: center;
-  margin-bottom: 20px;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Player hand styling */
-.player-hand {
-  margin-top: 20px;
-}
-
-/* Player Setup section styling */
-.player-setup {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
-  border-radius: 10px;
-}
-
-.player-setup div {
-  margin-bottom: 10px;
-}
-
-.player-setup label {
-  margin-right: 10px;
-  color: white;
-}
-
-.player-setup input {
-  padding: 5px;
-  border-radius: 5px;
-  border: none;
-  font-size: 16px;
-  color: black;
-}
-
-.bidding-container {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.bidding-cards {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.bidding-card {
-  width: 60px; /* Adjust the width of the cards */
-  margin-right: 10px; /* Space between the cards */
-}
-
-.bidding-buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.bid-button {
-  background-color: #4CAF50; /* Green background */
-  color: white;
-  padding: 10px 15px;
-  margin: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.bid-button:hover {
-  background-color: #45a049; /* Darker green on hover */
-}
-
-/* General Container for Card Alignment */
-.player-hand, .bidding-cards, .trick-cards {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-/* Card Styling */
-.bidding-card {
-  width: 60px; /* Adjust the width of the cards */
-  margin-right: 10px; /* Space between the cards */
-}
-Button {
-  background-color: #845cd5; /* Green background */
-  color: white;
-  padding: 10px 15px;
-  margin: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
 /* Button Styling */
-.bid-button, .game-button {
-  background-color: #4CAF50; /* Green background */
+button {
+  background-color: #4CAF50;
   color: white;
   padding: 10px 15px;
   margin: 5px;
@@ -197,30 +68,15 @@ Button {
   transition: background-color 0.3s ease;
 }
 
-.bid-button:hover, .game-button:hover {
-  background-color: #45a049; /* Darker green on hover */
-}
-
-.bid-button {
-  background-color: #4CAF50; /* Green background for active buttons */
-  color: white;
-  padding: 10px 15px;
-  margin: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.bid-button:hover:not(:disabled) {
-  background-color: #45a049; /* Darker green on hover for active buttons */
+button:hover {
+  background-color: #45a049;
 }
 
 /* Styles for disabled buttons */
 .disabled-button {
-  background-color: #d3d3d3; /* Gray background for disabled buttons */
-  color: #808080; /* Darker gray text color for disabled buttons */
-  cursor: not-allowed; /* Change cursor to indicate the button is not clickable */
+  background-color: #d3d3d3;
+  color: #808080;
+  cursor: not-allowed;
 }
 
 .trump-suit {
@@ -230,7 +86,6 @@ Button {
   color: rgb(92, 113, 51);
   text-shadow: #ffffff 2px 1px 1px;
 }
-
 
 .trick-history {
   position: absolute;
@@ -245,19 +100,6 @@ Button {
   overflow-y: auto;
 }
 
-.trick-history h4 {
-  margin-top: 0;
-}
-
-.trick-history ul {
-  padding-left: 30px;
-}
-
-.trick-history li {
-  margin-bottom: 10px;
-  list-style-type: none;
-}
-
 .trick-summary table {
   width: 100%;
   border-collapse: collapse;
@@ -270,97 +112,34 @@ Button {
   text-align: center;
 }
 
-.trick-summary tr:nth-child(even) {
+.trick-summary tr:nth-child(even), .trick-summary tr:nth-child(odd) {
   background-color: #d41c1c18;
 }
 
-.trick-summary tr:nth-child(odd) {
-  background-color: #d41c1c18;
-}
-
-
-/* Kartlar için genel stil */
-.bidding-cards {
+/* Card Styling */
+.player-hand, .bidding-cards, .trick-cards {
   display: flex;
-  flex-wrap: wrap; /* Kartların sığmadığında bir sonraki satıra geçmesini sağlar */
-  justify-content: center; /* Kartları yatayda ortalar */
-  margin-bottom: 10px; /* Kartlar ve bid butonları arasında boşluk bırakır */
-}
-
-.bidding-card {
-  width: 20%; /* Kartların genişliğini ekran genişliğine göre ayarlar */
-  max-width: 70px; /* Büyük ekranlarda kart boyutunu sınırlandırır */
-  height: auto; /* Kartların orantılı olarak boyutlandırılmasını sağlar */
-  margin: 5px; /* Kartlar arasında boşluk bırakır */
-  box-sizing: border-box; /* Padding ve border'ın toplam genişliğe dahil olmasını sağlar */
-}
-
-/* Küçük ekranlar için özel stil */
-@media (max-width: 600px) {
-  .bidding-card {
-    width: 25%; /* Küçük ekranlarda kartları daha geniş yapar */
-    max-width: 60px; /* Büyük ekranlar için genişlik sınırı */
-  }
-}
-
-@media (max-width: 400px) {
-  .bidding-card {
-    width: 30%; /* Çok küçük ekranlarda kartları daha geniş yapar */
-    max-width: 50px; /* Çok küçük ekranlar için genişlik sınırı */
-  }
-}
-
-
-.start-game{
-  background-color: #5528ae9b; /* Green background */
-  color: rgb(255, 255, 255);
-  padding: 10px 15px;
-  margin: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  z-index: 12;
-}
-.bid-button{
-  background-color: #28ae6bf9; /* Green background */
-  color: rgb(255, 255, 255);
-  padding: 10px 15px;
-  margin: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  z-index: 12;
-}
-Button{
-  z-index: 12;
-}
-
-
-/* Kartlar için genel stil */
-.bidding-cards {
-  display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
 }
 
 .bidding-card {
   width: 20%;
   max-width: 70px;
+  min-width: 50px;
   height: auto;
   margin: 5px;
   box-sizing: border-box;
-  min-width: 50px; /* Masaüstü için minimum genişlik ayarı */
 }
 
-/* Küçük ekranlar için özel stil */
+/* Responsive Styles for Cards */
 @media (max-width: 600px) {
   .bidding-card {
     width: 25%;
     max-width: 60px;
-    min-width: 45px; /* Küçük ekranlarda minimum genişlik ayarı */
+    min-width: 45px;
   }
 }
 
@@ -368,6 +147,51 @@ Button{
   .bidding-card {
     width: 30%;
     max-width: 50px;
-    min-width: 40px; /* Çok küçük ekranlar için minimum genişlik ayarı */
+    min-width: 40px;
   }
+}
+
+.trick-history {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.5); /* Transparanlık için */
+  color: white;
+  padding: 5px; /* Daha dar bir padding */
+  border-radius: 5px;
+  width: 160px; /* Alanı daralttık */
+  max-height: 200px; /* Alanı küçülttük */
+  overflow-y: auto;
+  font-size: 10px; /* Yazı boyutunu küçülttük */
+}
+
+.trick-history h4 {
+  margin-top: 0;
+  font-size: 12px; /* Başlık boyutunu da küçülttük */
+}
+
+.trick-history ul {
+  padding-left: 15px; /* Daha dar bir padding */
+}
+
+.trick-history li {
+  margin-bottom: 5px; /* Alt boşluğu küçülttük */
+  list-style-type: none;
+}
+
+.trick-summary table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 3px; /* Alanı küçülttük */
+}
+
+.trick-summary td {
+  padding: 2px; /* Hücrelerin içindeki boşluğu azalttık */
+  border: 1px solid #ddd;
+  text-align: center;
+  font-size: 10px; /* Hücre içi yazı boyutunu küçülttük */
+}
+
+.trick-summary tr:nth-child(even), .trick-summary tr:nth-child(odd) {
+  background-color: #d41c1c18;
 }
