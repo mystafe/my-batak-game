@@ -65,7 +65,7 @@ function GameBoard() {
   const handlePlayCard = (card) => {
     console.log(`Player ${gameState.currentPlayer + 1} played:`, card);
 
-    const { currentPlayer, currentTrick, players, trickLog, playerNames, trumpSuit, roundCount } = gameState;
+    const { currentPlayer, currentTrick, players, trickLog, playerNames, trumpSuit } = gameState;
     const currentSuit = currentTrick.length > 0 ? currentTrick[0].card.suit : card.suit;
     const playerHand = players[currentPlayer];
 
@@ -96,6 +96,15 @@ function GameBoard() {
       const newTricksWon = [...gameState.tricksWon];
       newTricksWon[trickWinner] += 1;
 
+      // Log the scores after each round
+      const newScores = [...gameState.scores];
+      console.log('Updated Scores:', {
+        'Mustafa': newScores[0],
+        'Player 2': newScores[1],
+        'Player 3': newScores[2],
+        'Player 4': newScores[3]
+      });
+
       setGameState({
         ...gameState,
         currentTrick: [],
@@ -106,8 +115,9 @@ function GameBoard() {
         tricksWon: newTricksWon, // Update tricks won
       });
 
-      if (roundCount >= 12) {
-        handleEndRound(); // End the game after 13 rounds
+      // Move to the next round or end the game
+      if (gameState.roundCount >= 12) {
+        handleEndGame(); // End the game after 13 rounds
       } else {
         setGameState((prevState) => ({
           ...prevState,
@@ -126,7 +136,7 @@ function GameBoard() {
     }
   };
 
-  const handleEndRound = () => {
+  const handleEndGame = () => {
     const { declarer, bids, tricksWon, scores } = gameState;
     const newScores = [...scores];
 
@@ -146,30 +156,21 @@ function GameBoard() {
       }
     }
 
-    const newRoundCount = gameState.roundCount + 1;
+    // Log the updated scores to the console
+    console.log('Final Scores:', {
+      'Mustafa': newScores[0],
+      'Player 2': newScores[1],
+      'Player 3': newScores[2],
+      'Player 4': newScores[3]
+    });
 
-    if (newRoundCount >= 13) {
-      // End the game after 13 rounds
-      setGameState({
-        ...gameState,
-        scores: newScores,
-        currentPhase: 'end',
-        notification: `Game over. Final scores: ${newScores.join(', ')}`,
-        trickLog: [], // Clear the trick log
-      });
-    } else {
-      // Continue to the next round
-      setGameState({
-        ...gameState,
-        scores: newScores,
-        roundCount: newRoundCount,
-        currentPhase: 'bidding',
-        notification: `Round ${newRoundCount} complete. Next round begins.`,
-        trickLog: [], // Clear the trick log
-        tricksWon: [0, 0, 0, 0], // Reset tricks won for the new round
-        bids: [null, null, null, null], // Reset bids for the new round
-      });
-    }
+    setGameState({
+      ...gameState,
+      scores: newScores,
+      currentPhase: 'end',
+      notification: `Game over. Final scores: ${newScores.join(', ')}`,
+      trickLog: [], // Clear the trick log
+    });
   };
 
   return (
@@ -198,10 +199,10 @@ function GameBoard() {
       {gameState.currentPhase === 'chooseTrump' && (
         <div className="trump-selection">
           <h3>{gameState.playerNames[gameState.declarer]}, choose the trump suit:</h3>
-          <button onClick={() => handleTrumpSelection('hearts')}>Hearts</button>
-          <button onClick={() => handleTrumpSelection('diamonds')}>Diamonds</button>
-          <button onClick={() => handleTrumpSelection('clubs')}>Clubs</button>
-          <button onClick={() => handleTrumpSelection('spades')}>Spades</button>
+          <button onClick={() => handleTrumpSelection('hearts', gameState, setGameState)}>Hearts</button>
+          <button onClick={() => handleTrumpSelection('diamonds', gameState, setGameState)}>Diamonds</button>
+          <button onClick={() => handleTrumpSelection('clubs', gameState, setGameState)}>Clubs</button>
+          <button onClick={() => handleTrumpSelection('spades', gameState, setGameState)}>Spades</button>
         </div>
       )}
       {gameState.currentPhase === 'playing' && (
