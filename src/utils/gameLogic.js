@@ -63,3 +63,14 @@ export const determineTrickWinner = (trick, trumpSuit) => {
 export const getCardImage = (card) => {
   return `cards/${card.value}_of_${card.suit}.png`;
 };
+
+// src/utils/gameLogic.js dosyasına ekleyin
+export function calculateScores(bids, tricksWon) {
+  return bids.map((bid, index) => {
+    if (tricksWon[index] === bid) {
+      return bid * 10; // Eğer teklif edilen el sayısı karşılandıysa tam puan
+    } else {
+      return -Math.abs(bid - tricksWon[index]) * 10; // Karşılanmadıysa negatif puan
+    }
+  });
+}

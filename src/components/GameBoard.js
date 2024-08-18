@@ -5,14 +5,14 @@ import Trick from './Trick';
 import ScoreBoard from './ScoreBoard';
 import Notification from './Notification';
 import PlayerHand from './PlayerHand';
-import { shuffleDeck, determineTrickWinner } from '../utils/gameLogic';
-import { startGame, handleBid } from '../utils/gameActions';
+import { calculateScores, shuffleDeck, determineTrickWinner } from '../utils/gameLogic';
+import { startGame, handleBid, handleTrumpSelection, handleEndRound, handleEndTrick, handleNewRound } from '../utils/gameActions';
 
 function GameBoard() {
   const [gameState, setGameState] = useState({
     deck: [],
     players: [[], [], [], []],
-    bids: [null, null, null, null],
+    bids: [0, 0, 0, 0],
     tricksWon: [0, 0, 0, 0],
     currentTrick: [],
     scores: [0, 0, 0, 0],
@@ -25,7 +25,37 @@ function GameBoard() {
     bidOrder: [],
     roundCount: 0,
     trickLog: [],
+    trickHistory: [],
   });
+
+
+  useEffect(() => {
+    if (gameState.currentPhase === 'bidding') {
+      const bidOrder = shuffleDeck([0, 1, 2, 3]);
+      if (gameState.playerNames.length === 4 && gameState.bids.length === 4) {
+        setGameState((prevState) => ({
+          ...prevState,
+          bidOrder,
+          currentPlayer: bidOrder[0],
+          notification: `${prevState.playerNames[bidOrder[0]]}, it's your turn to bid!`,
+        }));
+      } else {
+        console.error("Game data is incomplete!");
+      }
+    }
+  }, [gameState.currentPhase, gameState.bids.length, gameState.playerNames.length]);
+
+  useEffect(() => {
+    if (gameState.roundCount >= 13) {
+      setGameState({
+        ...gameState,
+        currentPhase: 'end',
+        notification: 'Round complete. Scores updated.',
+        trickLog: [],
+        scores: calculateScores(gameState.bids, gameState.tricksWon),
+      });
+    }
+  }, [gameState]);
 
   const handleNameChange = (index, name) => {
     const newPlayerNames = [...gameState.playerNames];
@@ -33,39 +63,8 @@ function GameBoard() {
     setGameState({ ...gameState, playerNames: newPlayerNames });
   };
 
-  useEffect(() => {
-    if (gameState.currentPhase === 'bidding') {
-      const bidOrder = shuffleDeck([0, 1, 2, 3]);
-      setGameState((prevState) => ({
-        ...prevState,
-        bidOrder,
-        currentPlayer: bidOrder[0],
-        notification: `${prevState.playerNames[bidOrder[0]]}, it's your turn to bid!`,
-      }));
-    }
-  }, [gameState.currentPhase]);
-
-  const handleTrumpSelection = (suit) => {
-    setGameState((prevState) => ({
-      ...prevState,
-      trumpSuit: suit,
-      currentPhase: 'playing',
-      currentPlayer: prevState.declarer,
-      notification: `${prevState.playerNames[prevState.declarer]} selected ${suit} as the trump suit. Let the game begin!`,
-    }));
-
-    setTimeout(() => {
-      setGameState((prevState) => ({
-        ...prevState,
-        notification: `${prevState.playerNames[prevState.declarer]}'s turn to play a card.`,
-      }));
-    }, 3000);
-  };
-
   const handlePlayCard = (card) => {
-    console.log(`Player ${gameState.currentPlayer + 1} played:`, card);
-
-    const { currentPlayer, currentTrick, players, trickLog, playerNames, trumpSuit } = gameState;
+    const { currentPlayer, currentTrick, players, trickLog, playerNames, trumpSuit, trickHistory } = gameState;
     const currentSuit = currentTrick.length > 0 ? currentTrick[0].card.suit : card.suit;
     const playerHand = players[currentPlayer];
 
@@ -90,40 +89,25 @@ function GameBoard() {
     const newTrickLog = [...trickLog, `${playerNames[currentPlayer]} played ${card.value} of ${card.suit}`];
 
     if (newTrick.length === 4) {
-      const trickWinner = determineTrickWinner(newTrick, trumpSuit);
-
-      // Increment the number of tricks won by the winning player
-      const newTricksWon = [...gameState.tricksWon];
-      newTricksWon[trickWinner] += 1;
-
-      // Log the scores after each round
-      const newScores = [...gameState.scores];
-      console.log('Updated Scores:', {
-        'Mustafa': newScores[0],
-        'Player 2': newScores[1],
-        'Player 3': newScores[2],
-        'Player 4': newScores[3]
-      });
+      const updatedTrickHistory = [
+        ...trickHistory,
+        [
+          ...newTrick.map((t) => ({
+            playerName: playerNames[t.player],
+            card: t.card,
+            winner: playerNames[determineTrickWinner(newTrick, trumpSuit)],
+          })),
+        ],
+      ];
 
       setGameState({
         ...gameState,
-        currentTrick: [],
-        players: newPlayers,
-        currentPlayer: trickWinner,
-        notification: `${playerNames[trickWinner]} wins the trick!`,
         trickLog: newTrickLog,
-        tricksWon: newTricksWon, // Update tricks won
+        players: newPlayers,
+        trickHistory: updatedTrickHistory,
       });
 
-      // Move to the next round or end the game
-      if (gameState.roundCount >= 12) {
-        handleEndGame(); // End the game after 13 rounds
-      } else {
-        setGameState((prevState) => ({
-          ...prevState,
-          roundCount: prevState.roundCount + 1, // Move to the next round
-        }));
-      }
+      handleEndTrick(gameState, setGameState); // Her el sonunda bu fonksiyon çağrılacak
     } else {
       setGameState({
         ...gameState,
@@ -136,48 +120,25 @@ function GameBoard() {
     }
   };
 
-  const handleEndGame = () => {
-    const { declarer, bids, tricksWon, scores } = gameState;
-    const newScores = [...scores];
-
-    // Calculate points for the declarer
-    if (tricksWon[declarer] < bids[declarer]) {
-      // Declarer did not meet their bid, lose points
-      newScores[declarer] -= bids[declarer] * 10;
-    } else {
-      // Declarer met or exceeded their bid, gain points
-      newScores[declarer] += bids[declarer] * 10;
+  // Round tamamlandığında güncellenen mesaj:
+  useEffect(() => {
+    if (gameState.currentPhase === 'end') {
+      setGameState((prevState) => ({
+        ...prevState,
+        notification: 'Round complete. Scores updated.',
+      }));
     }
-
-    // Calculate points for other players based on the number of tricks won
-    for (let i = 0; i < 4; i++) {
-      if (i !== declarer) {
-        newScores[i] += tricksWon[i] * 10;
-      }
-    }
-
-    // Log the updated scores to the console
-    console.log('Final Scores:', {
-      'Mustafa': newScores[0],
-      'Player 2': newScores[1],
-      'Player 3': newScores[2],
-      'Player 4': newScores[3]
-    });
-
-    setGameState({
-      ...gameState,
-      scores: newScores,
-      currentPhase: 'end',
-      notification: `Game over. Final scores: ${newScores.join(', ')}`,
-      trickLog: [], // Clear the trick log
-    });
-  };
+  }, [gameState.currentPhase]);
 
   return (
     <div className="game-board">
       {gameState.trumpSuit && (
         <div className="trump-suit">
-          <h3>Trump Suit: {gameState.trumpSuit.charAt(0).toUpperCase() + gameState.trumpSuit.slice(1)}</h3>
+          <h3>
+            Trump Suit: {gameState.trumpSuit.charAt(0).toUpperCase() + gameState.trumpSuit.slice(1)}
+            <br />
+            Chosen by: {gameState.playerNames[gameState.declarer]} (Bid: {gameState.bids[gameState.declarer]})
+          </h3>
         </div>
       )}
       <Notification message={gameState.notification} />
@@ -212,13 +173,46 @@ function GameBoard() {
             cards={gameState.players[gameState.currentPlayer]}
             playCard={(card) => handlePlayCard(card, gameState, setGameState)}
           />
+          <div className="trick-history">
+            <h4>Trick History</h4>
+            <ul>
+              {gameState.trickHistory.map((trick, index) => (
+                <li key={index}>
+                  <div>Trick {trick.trickNumber} started.</div>
+                  {trick.plays.map((play, idx) => (
+                    <div key={idx}>{`${play.playerName} played ${play.card.value} of ${play.card.suit}`}</div>
+                  ))}
+                  <div>Trick {trick.trickNumber} winner: {trick.winner}</div>
+                  <div className="trick-summary">
+                    <table>
+                      <tbody>
+                        <tr>
+                          <td>Mustafa</td>
+                          <td>{trick.totalScores[0]}</td>
+                          <td>Player 2</td>
+                          <td>{trick.totalScores[1]}</td>
+                        </tr>
+                        <tr>
+                          <td>Player 3</td>
+                          <td>{trick.totalScores[2]}</td>
+                          <td>Player 4</td>
+                          <td>{trick.totalScores[3]}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
       {gameState.currentPhase === 'end' && (
         <div>
-          <h3>Game Over. Final Scores:</h3>
+          <h3>{gameState.notification}</h3>
           <ScoreBoard scores={gameState.scores} playerNames={gameState.playerNames} />
           <button onClick={() => startGame(setGameState)}>Start New Game</button>
+          <button onClick={() => handleNewRound(gameState, setGameState)}>Start New Round</button>
         </div>
       )}
     </div>
