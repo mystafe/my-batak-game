@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="App">
       <GameBoard />
-      <h6 className="game-title">Batak: The Card Game - Under Development</h6>
+      <h6 className="game-title">Batak: The Card Game - Under Development - by Mustafa Evleksiz</h6>
     </div>
   );
 }
