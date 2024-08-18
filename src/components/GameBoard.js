@@ -5,7 +5,7 @@ import Trick from './Trick';
 import ScoreBoard from './ScoreBoard';
 import Notification from './Notification';
 import PlayerHand from './PlayerHand';
-import { calculateScores, shuffleDeck, determineTrickWinner } from '../utils/gameLogic';
+import { calculateScores, shuffleDeck, determineTrickWinner, isValidPlay } from '../utils/gameLogic';
 import { startGame, handleBid, handleTrumpSelection, handleEndRound, handleEndTrick, handleNewRound } from '../utils/gameActions';
 
 function GameBoard() {
@@ -69,59 +69,30 @@ function GameBoard() {
   };
 
   const handlePlayCard = (card) => {
-    const { currentPlayer, currentTrick, players, trickLog, playerNames, trumpSuit, trickHistory } = gameState;
-    const currentSuit = currentTrick.length > 0 ? currentTrick[0].card.suit : card.suit;
+    const { currentPlayer, currentTrick, players, trumpSuit } = gameState;
     const playerHand = players[currentPlayer];
 
-    const sameSuitCards = playerHand.filter(c => c.suit === currentSuit);
-    const hasTrumpSuit = playerHand.some(c => c.suit === trumpSuit);
-
-    if (sameSuitCards.length > 0 && card.suit !== currentSuit) {
-      alert(`${playerNames[currentPlayer]}, you must follow suit and play a ${currentSuit} card!`);
+    // Yeni geçerli oynama kontrolü
+    if (!isValidPlay(card, currentTrick, playerHand, trumpSuit)) {
       return;
     }
 
-    if (sameSuitCards.length === 0 && card.suit !== trumpSuit && hasTrumpSuit) {
-      alert(`${playerNames[currentPlayer]}, you must play a trump (${trumpSuit}) if possible!`);
-      return;
-    }
-
+    // Oyuncu oynayabilir, işlemler devam eder
     const newTrick = [...currentTrick, { player: currentPlayer, card }];
     const newPlayers = players.map((hand, index) =>
       index === currentPlayer ? hand.filter(c => c !== card) : hand
     );
 
-    const newTrickLog = [...trickLog, `${playerNames[currentPlayer]} played ${card.value} of ${card.suit}`];
+    setGameState({
+      ...gameState,
+      currentTrick: newTrick,
+      players: newPlayers,
+      currentPlayer: (currentPlayer + 1) % 4,
+      notification: `${gameState.playerNames[(currentPlayer + 1) % 4]}'s turn to play a card.`,
+    });
 
     if (newTrick.length === 4) {
-      const updatedTrickHistory = [
-        ...trickHistory,
-        [
-          ...newTrick.map((t) => ({
-            playerName: playerNames[t.player],
-            card: t.card,
-            winner: playerNames[determineTrickWinner(newTrick, trumpSuit)],
-          })),
-        ],
-      ];
-
-      setGameState({
-        ...gameState,
-        trickLog: newTrickLog,
-        players: newPlayers,
-        trickHistory: updatedTrickHistory,
-      });
-
-      handleEndTrick(gameState, setGameState); // Her el sonunda bu fonksiyon çağrılacak
-    } else {
-      setGameState({
-        ...gameState,
-        currentTrick: newTrick,
-        players: newPlayers,
-        currentPlayer: (currentPlayer + 1) % 4,
-        notification: `${playerNames[(currentPlayer + 1) % 4]}'s turn to play a card.`,
-        trickLog: newTrickLog,
-      });
+      handleEndTrick(gameState, setGameState); // Trick bitişini ele al
     }
   };
 
