@@ -336,3 +336,38 @@ Button {
 Button{
   z-index: 12;
 }
+
+
+/* Kartlar için genel stil */
+.bidding-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.bidding-card {
+  width: 20%;
+  max-width: 70px;
+  height: auto;
+  margin: 5px;
+  box-sizing: border-box;
+  min-width: 50px; /* Masaüstü için minimum genişlik ayarı */
+}
+
+/* Küçük ekranlar için özel stil */
+@media (max-width: 600px) {
+  .bidding-card {
+    width: 25%;
+    max-width: 60px;
+    min-width: 45px; /* Küçük ekranlarda minimum genişlik ayarı */
+  }
+}
+
+@media (max-width: 400px) {
+  .bidding-card {
+    width: 30%;
+    max-width: 50px;
+    min-width: 40px; /* Çok küçük ekranlar için minimum genişlik ayarı */
+  }
+}
