@@ -16,7 +16,12 @@ function Bidding({ playerNames, currentPlayer, handleBid, gameState }) {
       <h2>{playerNames[currentPlayer]}: Place your bid</h2>
       <div className="bidding-cards">
         {players[currentPlayer].map((card, index) => (
-          <img key={index} src={getCardImage(card)} alt={`${card.value} of ${card.suit}`} className="bidding-card" />
+          <img
+            key={index}
+            src={getCardImage(card)}
+            alt={`${card.value} of ${card.suit}`}
+            className="bidding-card"
+          />
         ))}
       </div>
       <div className="bidding-buttons">

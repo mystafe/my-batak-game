@@ -19,14 +19,16 @@
 /* Centering the title at the bottom */
 .game-title {
   position: absolute;
-  bottom: 10px;
+  bottom: -20px;
+  top: auto;
   left: 50%;
   transform: translateX(-50%);
   font-size: 15px;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  color: rgba(255, 255, 255, 0.103);
+  /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); */
   z-index: 10;
 }
+
 
 /* Game Board styling */
 .game-board {
@@ -274,4 +276,63 @@ Button {
 
 .trick-summary tr:nth-child(odd) {
   background-color: #d41c1c18;
+}
+
+
+/* Kartlar için genel stil */
+.bidding-cards {
+  display: flex;
+  flex-wrap: wrap; /* Kartların sığmadığında bir sonraki satıra geçmesini sağlar */
+  justify-content: center; /* Kartları yatayda ortalar */
+  margin-bottom: 10px; /* Kartlar ve bid butonları arasında boşluk bırakır */
+}
+
+.bidding-card {
+  width: 20%; /* Kartların genişliğini ekran genişliğine göre ayarlar */
+  max-width: 70px; /* Büyük ekranlarda kart boyutunu sınırlandırır */
+  height: auto; /* Kartların orantılı olarak boyutlandırılmasını sağlar */
+  margin: 5px; /* Kartlar arasında boşluk bırakır */
+  box-sizing: border-box; /* Padding ve border'ın toplam genişliğe dahil olmasını sağlar */
+}
+
+/* Küçük ekranlar için özel stil */
+@media (max-width: 600px) {
+  .bidding-card {
+    width: 25%; /* Küçük ekranlarda kartları daha geniş yapar */
+    max-width: 60px; /* Büyük ekranlar için genişlik sınırı */
+  }
+}
+
+@media (max-width: 400px) {
+  .bidding-card {
+    width: 30%; /* Çok küçük ekranlarda kartları daha geniş yapar */
+    max-width: 50px; /* Çok küçük ekranlar için genişlik sınırı */
+  }
+}
+
+
+.start-game{
+  background-color: #5528ae9b; /* Green background */
+  color: rgb(255, 255, 255);
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  z-index: 12;
+}
+.bid-button{
+  background-color: #28ae6bf9; /* Green background */
+  color: rgb(255, 255, 255);
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  z-index: 12;
+}
+Button{
+  z-index: 12;
 }
