@@ -107,7 +107,7 @@ function GameBoard() {
       });
 
       if (roundCount >= 12) {
-        handleEndRound(gameState, setGameState); // End the game after 13 rounds
+        handleEndRound(); // End the game after 13 rounds
       } else {
         setGameState((prevState) => ({
           ...prevState,
@@ -174,7 +174,11 @@ function GameBoard() {
 
   return (
     <div className="game-board">
-      <ScoreBoard scores={gameState.scores} playerNames={gameState.playerNames} />
+      {gameState.trumpSuit && (
+        <div className="trump-suit">
+          <h3>Trump Suit: {gameState.trumpSuit.charAt(0).toUpperCase() + gameState.trumpSuit.slice(1)}</h3>
+        </div>
+      )}
       <Notification message={gameState.notification} />
       {gameState.currentPhase === 'setup' && (
         <PlayerSetup
@@ -194,10 +198,10 @@ function GameBoard() {
       {gameState.currentPhase === 'chooseTrump' && (
         <div className="trump-selection">
           <h3>{gameState.playerNames[gameState.declarer]}, choose the trump suit:</h3>
-          <button onClick={() => handleTrumpSelection('hearts', gameState, setGameState)}>Hearts</button>
-          <button onClick={() => handleTrumpSelection('diamonds', gameState, setGameState)}>Diamonds</button>
-          <button onClick={() => handleTrumpSelection('clubs', gameState, setGameState)}>Clubs</button>
-          <button onClick={() => handleTrumpSelection('spades', gameState, setGameState)}>Spades</button>
+          <button onClick={() => handleTrumpSelection('hearts')}>Hearts</button>
+          <button onClick={() => handleTrumpSelection('diamonds')}>Diamonds</button>
+          <button onClick={() => handleTrumpSelection('clubs')}>Clubs</button>
+          <button onClick={() => handleTrumpSelection('spades')}>Spades</button>
         </div>
       )}
       {gameState.currentPhase === 'playing' && (
@@ -211,7 +215,7 @@ function GameBoard() {
       )}
       {gameState.currentPhase === 'end' && (
         <div>
-          <h3>Round Over. Scores:</h3>
+          <h3>Game Over. Final Scores:</h3>
           <ScoreBoard scores={gameState.scores} playerNames={gameState.playerNames} />
           <button onClick={() => startGame(setGameState)}>Start New Game</button>
         </div>
