@@ -88,22 +88,31 @@ button:hover {
 }
 
 .trick-history {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   background-color: rgba(0, 0, 0, 0.7);
   color: white;
-  padding: 8px;
+  padding: 10px;
   border-radius: 5px;
-  width: 240px;
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
+}
+
+.trick-history h4 {
+  margin-bottom: 10px;
+}
+
+.trick-history ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.trick-history li {
+  margin-bottom: 20px;
 }
 
 .trick-summary table {
   width: 100%;
+  margin-top: 10px;
   border-collapse: collapse;
-  margin-top: 5px;
 }
 
 .trick-summary td {
@@ -112,8 +121,12 @@ button:hover {
   text-align: center;
 }
 
-.trick-summary tr:nth-child(even), .trick-summary tr:nth-child(odd) {
-  background-color: #d41c1c18;
+.trick-summary tr:nth-child(even) {
+  background-color: #333;
+}
+
+.trick-summary tr:nth-child(odd) {
+  background-color: #444;
 }
 
 /* Card Styling */

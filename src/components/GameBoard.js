@@ -5,6 +5,7 @@ import Trick from './Trick';
 import ScoreBoard from './ScoreBoard';
 import Notification from './Notification';
 import PlayerHand from './PlayerHand';
+import TrickHistory from './TrickHistory'; // TrickHistory bileşeni import edildi
 import { calculateScores, shuffleDeck, isValidPlay } from '../utils/gameLogic';
 import { startGame, handleBid, handleTrumpSelection, handleEndRound, handleEndTrick, handleNewRound } from '../utils/gameActions';
 
@@ -25,9 +26,8 @@ function GameBoard() {
     bidOrder: [],
     roundCount: 0,
     trickLog: [],
-    trickHistory: [],
+    trickHistory: [], // Trick History için alan
     hasTrumpBeenPlayed: false, // Kozun oynanıp oynanmadığını izlemek için
-
   });
 
   useEffect(() => {
@@ -63,30 +63,28 @@ function GameBoard() {
       handleEndRound(gameState, setGameState);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.tricksWon]);  // Bu kısmı tricksWon'u izleyerek güncelliyoruz.
+  }, [gameState.tricksWon]);
+
   const handleNameChange = (index, name) => {
     const newPlayerNames = [...gameState.playerNames];
     newPlayerNames[index] = name;
     setGameState({ ...gameState, playerNames: newPlayerNames });
   };
 
-  const handlePlayCard = (card, gameState, setGameState) => {
+  const handlePlayCard = (card) => {
     const { currentPlayer, currentTrick, players, playerNames, trumpSuit, hasTrumpBeenPlayed } = gameState;
 
-    // Eğer gameState undefined ise fonksiyonu durdur
     if (!gameState || !players || !currentTrick) {
       console.error("Game state is incomplete or undefined. Aborting play.");
       return;
     }
 
-    // Oyuncunun geçerli bir oyun yapıp yapmadığını kontrol et
     const isValid = isValidPlay(card, gameState);
     if (!isValid.valid) {
       alert(isValid.message);
       return;
     }
 
-    // Eğer koz kartı oynanmışsa hasTrumpBeenPlayed'i true yap
     if (card.suit === trumpSuit && !hasTrumpBeenPlayed) {
       setGameState((prevState) => ({
         ...prevState,
@@ -94,7 +92,6 @@ function GameBoard() {
       }));
     }
 
-    // Kartı oynama ve durumu güncelleme işlemleri
     const newTrick = [...currentTrick, { player: currentPlayer, card }];
     const newPlayers = players.map((hand, index) =>
       index === currentPlayer ? hand.filter(c => c !== card) : hand
@@ -121,15 +118,6 @@ function GameBoard() {
       });
     }
   };
-  // Round tamamlandığında güncellenen mesaj:
-  useEffect(() => {
-    if (gameState.currentPhase === 'end') {
-      setGameState((prevState) => ({
-        ...prevState,
-        notification: 'Round complete. Scores updated.',
-      }));
-    }
-  }, [gameState.currentPhase]);
 
   return (
     <div className="game-board">
@@ -174,38 +162,7 @@ function GameBoard() {
             cards={gameState.players[gameState.currentPlayer]}
             playCard={(card) => handlePlayCard(card, gameState, setGameState)}
           />
-          <div className="trick-history">
-            <h4>Trick History</h4>
-            <ul>
-              {gameState.trickHistory.map((trick, index) => (
-                <li key={index}>
-                  <div>Trick {trick.trickNumber} started.</div>
-                  {trick.plays.map((play, idx) => (
-                    <div key={idx}>{`${play.playerName} played ${play.card.value} of ${play.card.suit}`}</div>
-                  ))}
-                  <div>Trick {trick.trickNumber} winner: {trick.winner}</div>
-                  <div className="trick-summary">
-                    <table>
-                      <tbody>
-                        <tr>
-                          <td>Mustafa</td>
-                          <td>{trick.totalScores[0]}</td>
-                          <td>Player 2</td>
-                          <td>{trick.totalScores[1]}</td>
-                        </tr>
-                        <tr>
-                          <td>Player 3</td>
-                          <td>{trick.totalScores[2]}</td>
-                          <td>Player 4</td>
-                          <td>{trick.totalScores[3]}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <TrickHistory trickHistory={gameState.trickHistory} /> {/* TrickHistory bileşeni burada kullanılıyor */}
         </div>
       )}
       {gameState.currentPhase === 'end' && (
