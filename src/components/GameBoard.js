@@ -5,7 +5,7 @@ import Trick from './Trick';
 import ScoreBoard from './ScoreBoard';
 import Notification from './Notification';
 import PlayerHand from './PlayerHand';
-import { calculateScores, shuffleDeck, determineTrickWinner, isValidPlay } from '../utils/gameLogic';
+import { calculateScores, shuffleDeck, isValidPlay } from '../utils/gameLogic';
 import { startGame, handleBid, handleTrumpSelection, handleEndRound, handleEndTrick, handleNewRound } from '../utils/gameActions';
 
 function GameBoard() {
@@ -61,6 +61,7 @@ function GameBoard() {
     if (gameState.tricksWon.reduce((acc, val) => acc + val, 0) === 13) {
       handleEndRound(gameState, setGameState);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState.tricksWon]);  // Bu kısmı tricksWon'u izleyerek güncelliyoruz.
   const handleNameChange = (index, name) => {
     const newPlayerNames = [...gameState.playerNames];
