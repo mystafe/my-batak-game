@@ -26,8 +26,9 @@ function GameBoard() {
     roundCount: 0,
     trickLog: [],
     trickHistory: [],
-  });
+    hasTrumpBeenPlayed: false, // Kozun oynanıp oynanmadığını izlemek için
 
+  });
 
   useEffect(() => {
     if (gameState.currentPhase === 'bidding') {
@@ -70,33 +71,65 @@ function GameBoard() {
   };
 
   const handlePlayCard = (card) => {
-    const { currentPlayer, currentTrick, players, trumpSuit } = gameState;
-    const playerHand = players[currentPlayer];
+    const { currentPlayer, currentTrick, players, playerNames, trumpSuit, hasTrumpBeenPlayed } = gameState;
 
-    // Yeni geçerli oynama kontrolü
-    if (!isValidPlay(card, currentTrick, playerHand, trumpSuit)) {
+    // // Debugging için log ekleyelim
+    // console.log("Current Player:", currentPlayer);
+    // console.log("Player Hand:", players[currentPlayer]);
+    // console.log("Game State:", gameState);
+
+    // Eğer gameState undefined ise fonksiyonu durdur
+    if (!gameState || !players || !currentTrick) {
+      console.error("Game state is incomplete or undefined. Aborting play.");
       return;
     }
 
-    // Oyuncu oynayabilir, işlemler devam eder
+    // eslint-disable-next-line no-unused-vars
+    const currentSuit = currentTrick.length > 0 ? currentTrick[0].card.suit : card.suit;
+    // eslint-disable-next-line no-unused-vars
+    const playerHand = players[currentPlayer];
+
+    // Oyuncunun geçerli bir oyun yapıp yapmadığını kontrol et
+    const isValid = isValidPlay(card, gameState);
+    if (!isValid.valid) {
+      alert(isValid.message);
+      return;
+    }
+
+    // Eğer koz kartı oynanmışsa hasTrumpBeenPlayed'i true yap
+    if (card.suit === trumpSuit && !hasTrumpBeenPlayed) {
+      setGameState((prevState) => ({
+        ...prevState,
+        hasTrumpBeenPlayed: true,
+      }));
+    }
+
     const newTrick = [...currentTrick, { player: currentPlayer, card }];
     const newPlayers = players.map((hand, index) =>
       index === currentPlayer ? hand.filter(c => c !== card) : hand
     );
 
-    setGameState({
-      ...gameState,
-      currentTrick: newTrick,
-      players: newPlayers,
-      currentPlayer: (currentPlayer + 1) % 4,
-      notification: `${gameState.playerNames[(currentPlayer + 1) % 4]}'s turn to play a card.`,
-    });
+    const newTrickLog = [...gameState.trickLog, `${playerNames[currentPlayer]} played ${card.value} of ${card.suit}`];
 
     if (newTrick.length === 4) {
-      handleEndTrick(gameState, setGameState); // Trick bitişini ele al
+      setGameState({
+        ...gameState,
+        currentTrick: [],
+        players: newPlayers,
+        trickLog: newTrickLog,
+      });
+      handleEndTrick({ ...gameState, currentTrick: newTrick }, setGameState);
+    } else {
+      setGameState({
+        ...gameState,
+        currentTrick: newTrick,
+        players: newPlayers,
+        currentPlayer: (currentPlayer + 1) % 4,
+        notification: `${playerNames[(currentPlayer + 1) % 4]}'s turn to play a card.`,
+        trickLog: newTrickLog,
+      });
     }
   };
-
   // Round tamamlandığında güncellenen mesaj:
   useEffect(() => {
     if (gameState.currentPhase === 'end') {
