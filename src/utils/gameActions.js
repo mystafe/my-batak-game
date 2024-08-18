@@ -21,6 +21,8 @@ export const startGame = (setGameState) => {
     playerNames: prevState.playerNames || ['Mustafa', 'Player 2', 'Player 3', 'Player 4'], // `playerNames`i koru
   }));
 };
+
+
 export const handleBid = (index, bid, gameState, setGameState) => {
   const newBids = [...gameState.bids];
   newBids[index] = bid;
@@ -102,19 +104,20 @@ export const handleEndTrick = (gameState, setGameState) => {
   }
 };
 
-// handleEndRound: Sadece 13 el tamamlandığında çağrılır
 export const handleEndRound = (gameState, setGameState) => {
   const { declarer, bids, tricksWon, scores } = gameState;
   const newScores = [...scores];
 
-  // Deklaran için puan hesaplama
+  // Calculate points for the declarer
   if (tricksWon[declarer] < bids[declarer]) {
+    // Declarer did not meet their bid, lose points
     newScores[declarer] -= bids[declarer] * 10;
   } else {
-    newScores[declarer] += bids[declarer] * 10;
+    // Declarer met or exceeded their bid, gain points
+    newScores[declarer] += tricksWon[declarer] * 10;
   }
 
-  // Diğer oyuncular için puan hesaplama
+  // Calculate points for other players based on the number of tricks won
   for (let i = 0; i < 4; i++) {
     if (i !== declarer) {
       newScores[i] += tricksWon[i] * 10;
@@ -127,10 +130,9 @@ export const handleEndRound = (gameState, setGameState) => {
     currentTrick: [],
     tricksWon: [0, 0, 0, 0],
     notification: `Round complete. Scores updated.`,
-    currentPhase: 'end',
+    currentPhase: 'end',  // Oyun bitiş ekranı için currentPhase'i 'end' olarak güncelle
   }));
 };
-
 export const handleEndGame = (gameState, setGameState) => {
   const { scores } = gameState;
   console.log('Final Scores:', {

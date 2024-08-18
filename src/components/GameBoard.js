@@ -57,6 +57,11 @@ function GameBoard() {
     }
   }, [gameState]);
 
+  useEffect(() => {
+    if (gameState.tricksWon.reduce((acc, val) => acc + val, 0) === 13) {
+      handleEndRound(gameState, setGameState);
+    }
+  }, [gameState.tricksWon]);  // Bu kısmı tricksWon'u izleyerek güncelliyoruz.
   const handleNameChange = (index, name) => {
     const newPlayerNames = [...gameState.playerNames];
     newPlayerNames[index] = name;
