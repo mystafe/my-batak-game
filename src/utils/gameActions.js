@@ -16,6 +16,7 @@ export const startGame = (setGameState) => {
     trumpSuit: null,
     bidOrder: shuffleDeck([0, 1, 2, 3]), // Ensure bid order is randomized
     roundCount: 0,
+    bids: [null, null, null, null], // Reset bids for the new game
   }));
 };
 
@@ -122,6 +123,7 @@ export const handlePlayCard = (card, gameState, setGameState) => {
       return values.indexOf(current.value) > values.indexOf(max.value) ? current : max;
     });
 
+    // Ensure the player is playing the highest possible card of that suit if they have one
     if (values.indexOf(card.value) < values.indexOf(highestSameSuitCard.value)) {
       alert(`${gameState.playerNames[currentPlayer]}, you must play a better card if possible!`);
       return;
