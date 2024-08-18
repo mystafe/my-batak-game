@@ -76,7 +76,7 @@ export function calculateScores(bids, tricksWon) {
 }
 
 export const isValidPlay = (card, gameState) => {
-  const { currentTrick, players, currentPlayer, trumpSuit } = gameState;
+  const { currentTrick, players, currentPlayer, trumpSuit, hasTrumpBeenPlayed } = gameState;
 
   if (!currentTrick || !players || currentPlayer === undefined || !trumpSuit) {
     console.error("Game state is incomplete or undefined during validation.");
@@ -84,37 +84,42 @@ export const isValidPlay = (card, gameState) => {
   }
 
   const playerHand = players[currentPlayer];
-  if (!currentTrick || currentTrick.length === 0) {
+
+  // Eğer turdaki ilk kart oynanıyorsa (currentTrick boşsa)
+  if (currentTrick.length === 0) {
+    // Eğer oyuncunun elinde başka suitlerden kart varsa, ilk olarak koz oynayamaz
+    if (card.suit === trumpSuit && !hasTrumpBeenPlayed) {
+      const nonTrumpCards = playerHand.filter(c => c.suit !== trumpSuit);
+      if (nonTrumpCards.length > 0) {
+        return { valid: false, message: "You cannot lead with a trump card if you have non-trump cards." };
+      }
+    }
     return { valid: true };
   }
 
-  const firstTrickCard = currentTrick[0];
-  if (!firstTrickCard || !firstTrickCard.card) {
-    return { valid: true };
-  }
-
-  const currentSuit = firstTrickCard.card.suit;
+  const firstTrickCard = currentTrick[0].card;
+  const currentSuit = firstTrickCard.suit;
   const sameSuitCards = playerHand.filter(c => c.suit === currentSuit);
   const hasTrumpSuit = playerHand.some(c => c.suit === trumpSuit);
 
-  // Eğer oyuncunun elinde aynı tipte kart varsa
+  // 1. Eğer oyuncunun elinde masadaki suitten kart varsa, bu suitten bir kart oynamalı.
   if (sameSuitCards.length > 0) {
-    const higherCards = sameSuitCards.filter(c => values.indexOf(c.value) > values.indexOf(firstTrickCard.card.value));
-
-    // Eğer elinde daha yüksek kart yoksa istediği kartı oynayabilir
-    if (higherCards.length === 0) {
-      return { valid: true };
+    if (card.suit !== currentSuit) {
+      return { valid: false, message: `You must play a ${currentSuit} card if you have one.` };
     }
 
-    // Eğer elinde daha yüksek bir kart varsa bu kartı oynamalı
-    if (values.indexOf(card.value) <= values.indexOf(firstTrickCard.card.value)) {
+    const higherCards = sameSuitCards.filter(c => values.indexOf(c.value) > values.indexOf(firstTrickCard.value));
+
+    // Eğer elindeki kartlar masadaki kartları geçemiyorsa herhangi bir kart oynayabilir.
+    if (higherCards.length > 0 && values.indexOf(card.value) <= values.indexOf(firstTrickCard.value)) {
       return { valid: false, message: 'You must play a higher card of the same suit if you have one!' };
+    } else {
+      return { valid: true };
     }
   }
 
-  // Eğer oyuncunun elinde aynı tipte kart yoksa
+  // 2. Eğer oyuncunun elinde aynı suitten kart yoksa ve koz atılmamışsa, koz atması zorunlu.
   if (sameSuitCards.length === 0) {
-    // Eğer koz kartı varsa, bu kartı oynamalı
     if (hasTrumpSuit && card.suit !== trumpSuit) {
       return { valid: false, message: `You must play a trump (${trumpSuit}) if possible!` };
     }

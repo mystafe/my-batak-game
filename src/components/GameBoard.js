@@ -70,24 +70,14 @@ function GameBoard() {
     setGameState({ ...gameState, playerNames: newPlayerNames });
   };
 
-  const handlePlayCard = (card) => {
+  const handlePlayCard = (card, gameState, setGameState) => {
     const { currentPlayer, currentTrick, players, playerNames, trumpSuit, hasTrumpBeenPlayed } = gameState;
-
-    // // Debugging için log ekleyelim
-    // console.log("Current Player:", currentPlayer);
-    // console.log("Player Hand:", players[currentPlayer]);
-    // console.log("Game State:", gameState);
 
     // Eğer gameState undefined ise fonksiyonu durdur
     if (!gameState || !players || !currentTrick) {
       console.error("Game state is incomplete or undefined. Aborting play.");
       return;
     }
-
-    // eslint-disable-next-line no-unused-vars
-    const currentSuit = currentTrick.length > 0 ? currentTrick[0].card.suit : card.suit;
-    // eslint-disable-next-line no-unused-vars
-    const playerHand = players[currentPlayer];
 
     // Oyuncunun geçerli bir oyun yapıp yapmadığını kontrol et
     const isValid = isValidPlay(card, gameState);
@@ -104,6 +94,7 @@ function GameBoard() {
       }));
     }
 
+    // Kartı oynama ve durumu güncelleme işlemleri
     const newTrick = [...currentTrick, { player: currentPlayer, card }];
     const newPlayers = players.map((hand, index) =>
       index === currentPlayer ? hand.filter(c => c !== card) : hand
