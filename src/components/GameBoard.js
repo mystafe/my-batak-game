@@ -27,10 +27,10 @@ function GameBoard() {
     roundCount: 0,
     trickLog: [],
     trickHistory: [],
-    hasTrumpBeenPlayed: false,  // Track if a trump card has been played
-    leadSuit: null,             // Track the lead suit of the current trick
-    highestCardValue: 0,        // Track the highest card value in the current trick
-    playableCards: [],          // Track the cards the current player can play
+    hasTrumpBeenPlayed: false,
+    leadSuit: null,
+    highestCardValue: 0,
+    playableCards: [],
   });
 
   useEffect(() => {
@@ -51,13 +51,7 @@ function GameBoard() {
 
   useEffect(() => {
     if (gameState.roundCount >= 13) {
-      setGameState((prevState) => ({
-        ...prevState,
-        currentPhase: 'end',
-        notification: 'Round complete. Scores updated.',
-        trickLog: [],
-        scores: calculateScores(gameState.bids, gameState.tricksWon),
-      }));
+      endRound();
     }
   }, [gameState.roundCount, gameState.bids, gameState.tricksWon]);
 
@@ -78,12 +72,25 @@ function GameBoard() {
 
   const handlePlayCardInGameBoard = (card) => {
     handlePlayCard(card, gameState, setGameState);
+    updatePlayableCards();
+  };
 
-    // Calculate and update playable cards for the next player
-    const playableCards = calculatePlayableCards(gameState);
+  const updatePlayableCards = () => {
+    const nextPlayerIndex = gameState.currentPlayer % 4;
+    const playableCards = calculatePlayableCards(gameState, nextPlayerIndex);
     setGameState(prevState => ({
       ...prevState,
       playableCards,
+    }));
+  };
+
+  const endRound = () => {
+    setGameState((prevState) => ({
+      ...prevState,
+      currentPhase: 'end',
+      notification: 'Round complete. Scores updated.',
+      trickLog: [],
+      scores: calculateScores(gameState.bids, gameState.tricksWon),
     }));
   };
 
