@@ -5,9 +5,9 @@ import Trick from './Trick';
 import ScoreBoard from './ScoreBoard';
 import Notification from './Notification';
 import PlayerHand from './PlayerHand';
-import TrickHistory from './TrickHistory'; // TrickHistory bileşeni import edildi
-import { calculateScores, shuffleDeck, isValidPlay } from '../utils/gameLogic';
-import { startGame, handleBid, handleTrumpSelection, handleEndRound, handleEndTrick, handleNewRound } from '../utils/gameActions';
+import TrickHistory from './TrickHistory';
+import { calculateScores, shuffleDeck, handlePlayCard, calculatePlayableCards } from '../utils/gameLogic';
+import { startGame, handleBid, handleTrumpSelection, handleEndRound, handleNewRound } from '../utils/gameActions';
 
 function GameBoard() {
   const [gameState, setGameState] = useState({
@@ -26,8 +26,11 @@ function GameBoard() {
     bidOrder: [],
     roundCount: 0,
     trickLog: [],
-    trickHistory: [], // Trick History için alan
-    hasTrumpBeenPlayed: false, // Kozun oynanıp oynanmadığını izlemek için
+    trickHistory: [],
+    hasTrumpBeenPlayed: false,  // Track if a trump card has been played
+    leadSuit: null,             // Track the lead suit of the current trick
+    highestCardValue: 0,        // Track the highest card value in the current trick
+    playableCards: [],          // Track the cards the current player can play
   });
 
   useEffect(() => {
@@ -48,75 +51,40 @@ function GameBoard() {
 
   useEffect(() => {
     if (gameState.roundCount >= 13) {
-      setGameState({
-        ...gameState,
+      setGameState((prevState) => ({
+        ...prevState,
         currentPhase: 'end',
         notification: 'Round complete. Scores updated.',
         trickLog: [],
         scores: calculateScores(gameState.bids, gameState.tricksWon),
-      });
+      }));
     }
-  }, [gameState]);
+  }, [gameState.roundCount, gameState.bids, gameState.tricksWon]);
 
   useEffect(() => {
     if (gameState.tricksWon.reduce((acc, val) => acc + val, 0) === 13) {
       handleEndRound(gameState, setGameState);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.tricksWon]);
+  }, [gameState.tricksWon, gameState]);
 
   const handleNameChange = (index, name) => {
     const newPlayerNames = [...gameState.playerNames];
     newPlayerNames[index] = name;
-    setGameState({ ...gameState, playerNames: newPlayerNames });
+    setGameState((prevState) => ({
+      ...prevState,
+      playerNames: newPlayerNames,
+    }));
   };
 
-  const handlePlayCard = (card) => {
-    const { currentPlayer, currentTrick, players, playerNames, trumpSuit, hasTrumpBeenPlayed } = gameState;
+  const handlePlayCardInGameBoard = (card) => {
+    handlePlayCard(card, gameState, setGameState);
 
-    if (!gameState || !players || !currentTrick) {
-      console.error("Game state is incomplete or undefined. Aborting play.");
-      return;
-    }
-
-    const isValid = isValidPlay(card, gameState);
-    if (!isValid.valid) {
-      alert(isValid.message);
-      return;
-    }
-
-    if (card.suit === trumpSuit && !hasTrumpBeenPlayed) {
-      setGameState((prevState) => ({
-        ...prevState,
-        hasTrumpBeenPlayed: true,
-      }));
-    }
-
-    const newTrick = [...currentTrick, { player: currentPlayer, card }];
-    const newPlayers = players.map((hand, index) =>
-      index === currentPlayer ? hand.filter(c => c !== card) : hand
-    );
-
-    const newTrickLog = [...gameState.trickLog, `${playerNames[currentPlayer]} played ${card.value} of ${card.suit}`];
-
-    if (newTrick.length === 4) {
-      setGameState({
-        ...gameState,
-        currentTrick: [],
-        players: newPlayers,
-        trickLog: newTrickLog,
-      });
-      handleEndTrick({ ...gameState, currentTrick: newTrick }, setGameState);
-    } else {
-      setGameState({
-        ...gameState,
-        currentTrick: newTrick,
-        players: newPlayers,
-        currentPlayer: (currentPlayer + 1) % 4,
-        notification: `${playerNames[(currentPlayer + 1) % 4]}'s turn to play a card.`,
-        trickLog: newTrickLog,
-      });
-    }
+    // Calculate and update playable cards for the next player
+    const playableCards = calculatePlayableCards(gameState);
+    setGameState(prevState => ({
+      ...prevState,
+      playableCards,
+    }));
   };
 
   return (
@@ -160,9 +128,9 @@ function GameBoard() {
           <Trick trick={gameState.currentTrick} playerNames={gameState.playerNames} />
           <PlayerHand
             cards={gameState.players[gameState.currentPlayer]}
-            playCard={(card) => handlePlayCard(card, gameState, setGameState)}
+            playCard={handlePlayCardInGameBoard}
           />
-          <TrickHistory trickHistory={gameState.trickHistory} /> {/* TrickHistory bileşeni burada kullanılıyor */}
+          <TrickHistory trickHistory={gameState.trickHistory} />
         </div>
       )}
       {gameState.currentPhase === 'end' && (

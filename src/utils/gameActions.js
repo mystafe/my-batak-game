@@ -91,11 +91,14 @@ export const handleEndTrick = (gameState, setGameState) => {
 
   setGameState((prevState) => ({
     ...prevState,
-    currentTrick: [],
+    currentTrick: [],  // Masadaki kağıtları sıfırla
     currentPlayer: trickWinner,
     tricksWon: newTricksWon,
     trickHistory: updatedTrickHistory,
     notification: `Trick completed, winner: ${playerNames[trickWinner]}.`,
+    playableCards: [],  // Oynanabilir kartları sıfırla
+    leadSuit: null,  // İlk tur kağıdını sıfırla
+    highestCardValue: 0,  // En yüksek kağıt değerini sıfırla
   }));
 
   // Eğer 13 el tamamlandıysa, round'u sonlandır
